@@ -5,21 +5,37 @@ import {
 
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
-import Barcode, { ReactBarcodeProps } from 'react-jsbarcode'
+import Barcode from 'react-jsbarcode'
+import BarcodeScanner from '../components/barcode-scanner'
+import { type Result as ScanResult } from '@zxing/library'
 import { useLocalStorage } from 'usehooks-ts'
 
-export default function Home() {
-  const [barcodes, setBarcodes] = useLocalStorage<ReactBarcodeProps>('barcodes', '[]')
+type StoredBarcode = {
+  value: string
+  format: string
+}
 
-  const addBarcode = (value: number, format: string = 'code128') => {
-    setBarcodes([...barcodes, { value, format: format }])
+export default function Home() {
+  const [barcodes, setBarcodes] = useLocalStorage<StoredBarcode[]>('barcodes', [])
+  const [barcode, setBarcode] = useState<string>('')
+
+  const addBarcode = (value: string, format: string = 'code128') => {
+    setBarcodes([...barcodes, { value, format }])
   }
 
-  console.log(barcodes);
+  // handle barcode scanning
+  const handleScan = (error: unknown, result?: ScanResult) => {
+  }
 
   return (
     <div>
-      <Head>foo</Head>
+      <Head><title>Checkout SKU-er</title></Head>
+
+      <BarcodeScanner onUpdate={handleScan} />
+
+      {barcodes.map(({value, format}, index) => (
+        <Barcode key={index} value={value} options={{ format }} />
+      ))}
     </div>
   )
 }
